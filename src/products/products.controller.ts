@@ -7,7 +7,7 @@ export class ProductsControler {
   @Post()
   addProduct(
     @Body('title') prodTitle: string,
-    @Body('desription') prodDesc: string,
+    @Body('description') prodDesc: string,
     @Body('price') prodPrice: number,
   ): any {
     const id = this.productsService.insertProduct(
