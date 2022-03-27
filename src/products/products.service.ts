@@ -25,44 +25,40 @@ export class ProductsService {
 
   async getProducts() {
     const products = await this.productModel.find().exec();
-    return products.map(({ id, title, description, price }) => ({
-      id,
-      title,
-      description,
-      price,
-    })) as Product[];
+    return products.map(this.formatProduct) as Product[];
   }
 
-  getProduct(id: string): Product | never {
-    const product = this.findProduct(id);
-    return { ...product };
+  async getProduct(id: string) {
+    const product = await this.findProduct(id);
+    return product;
   }
 
-  updateProduct(id: string, updateData: Partial<Product>): Product | never {
-    const idx = this.findProduct(id, true);
-    this._products[idx] = merge(this._products[idx], updateData);
-    return this._products[idx];
+  updateProduct(id: string, updateData: Partial<Product>) {
+    // const idx = this.findProduct(id, true);
+    // this._products[idx] = merge(this._products[idx], updateData);
+    // return this._products[idx];
   }
 
-  deleteProduct(id: string): Product {
-    const idx = this.findProduct(id, true);
-    return this._products.splice(idx, 1)[0];
+  deleteProduct(id: string) {
+    // const idx = this.findProduct(id, true);
+    // return this._products.splice(idx, 1)[0];
   }
 
   /**
    * utils
    */
-  private findProduct(id: string): Product | never;
-  private findProduct(id: string, byIndex: boolean): number | never;
-  private findProduct(id: string, byIndex?: boolean): unknown {
-    const cb = (item) => item.id === id;
-
-    const result = byIndex
-      ? this._products.findIndex(cb)
-      : this._products.find(cb);
-    if (!(result || result === 0) || result === -1) {
+  private async findProduct(id: string) {
+    let product;
+    try {
+      product = await this.productModel.findById(id);
+      return this.formatProduct(product);
+    } catch {
       throw new NotFoundException();
     }
-    return result;
+  }
+
+  private formatProduct(product: Product): Product {
+    const { id, title, description, price } = product;
+    return { id, title, description, price };
   }
 }
