@@ -7,8 +7,6 @@ import { merge } from 'lodash';
 
 @Injectable()
 export class ProductsService {
-  private _products: Product[] = [];
-
   constructor(
     @InjectModel('Product') private readonly productModel: Model<Product>,
   ) {}
@@ -40,9 +38,14 @@ export class ProductsService {
     return this.formatProduct(resultProduct);
   }
 
-  deleteProduct(id: string) {
-    // const idx = this.findProduct(id, true);
-    // return this._products.splice(idx, 1)[0];
+  async deleteProduct(id: string) {
+    let deletedProduct;
+    try {
+      deletedProduct = await this.productModel.findByIdAndDelete(id).exec();
+      return deletedProduct;
+    } catch {
+      throw new NotFoundException();
+    }
   }
 
   /**
@@ -51,7 +54,7 @@ export class ProductsService {
   private async findProduct(id: string) {
     let product;
     try {
-      product = await this.productModel.findById(id);
+      product = await this.productModel.findById(id).exec();
       return product;
     } catch {
       throw new NotFoundException();
