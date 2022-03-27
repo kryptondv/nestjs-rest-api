@@ -30,13 +30,14 @@ export class ProductsService {
 
   async getProduct(id: string) {
     const product = await this.findProduct(id);
-    return product;
+    return this.formatProduct(product);
   }
 
-  updateProduct(id: string, updateData: Partial<Product>) {
-    // const idx = this.findProduct(id, true);
-    // this._products[idx] = merge(this._products[idx], updateData);
-    // return this._products[idx];
+  async updateProduct(id: string, updateData: Partial<Product>) {
+    const product = await this.findProduct(id);
+    const updatedProduct = merge(product, updateData);
+    const resultProduct = await updatedProduct.save();
+    return this.formatProduct(resultProduct);
   }
 
   deleteProduct(id: string) {
@@ -51,7 +52,7 @@ export class ProductsService {
     let product;
     try {
       product = await this.productModel.findById(id);
-      return this.formatProduct(product);
+      return product;
     } catch {
       throw new NotFoundException();
     }
