@@ -1,23 +1,27 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+
 import { Product } from './product.model';
 import { v4 as uuidv4 } from 'uuid';
 import { merge } from 'lodash';
 
 @Injectable()
 export class ProductsService {
-  private _products: Product[] = [
-    {
-      id: '9707d841-6d99-4f9c-980f-2401b7d067f6',
-      title: 'User friendly book',
-      description: 'To jest test3',
-      price: 21,
-    },
-  ];
+  private _products: Product[] = [];
 
-  insertProduct(title: string, description: string, price: number) {
-    const id: string = uuidv4();
-    this._products.push(new Product(id, title, description, price));
-    return id;
+  constructor(
+    @InjectModel('Product') private readonly productModel: Model<Product>,
+  ) {}
+
+  async insertProduct(
+    title: string,
+    description: string,
+    price: number,
+  ): Promise<Product['id']> {
+    const newProduct = new this.productModel({ title, description, price });
+    const { id } = await newProduct.save();
+    return id as Product['id'];
   }
 
   get products() {
