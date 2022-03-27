@@ -8,7 +8,6 @@ import {
   Delete,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { Product } from './product.model';
 
 @Controller('products')
 export class ProductsControler {
@@ -19,7 +18,7 @@ export class ProductsControler {
     @Body('title') prodTitle: string,
     @Body('description') prodDesc: string,
     @Body('price') prodPrice: number,
-  ): Promise<Pick<Product, 'id'>> {
+  ) {
     const id = await this.productsService.insertProduct(
       prodTitle,
       prodDesc,
@@ -29,8 +28,9 @@ export class ProductsControler {
   }
 
   @Get()
-  getProducts() {
-    return this.productsService.products;
+  async getProducts() {
+    const products = await this.productsService.getProducts();
+    return products;
   }
 
   @Get(':id')
